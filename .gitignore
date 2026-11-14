@@ -1,0 +1,7 @@
+node_modules/
+*.bak
+*.bak-*
+*.deleting-*
+lib/index-v3.js
+.DS_Store
+Thumbs.db

@@ -1,0 +1,56 @@
+{
+  "name": "dsh-session-delete",
+  "version": "1.1.0",
+  "description": "给 DSH 会话列表加一个「删除对话」菜单项：真正删掉会话（磁盘目录 + 内存条目 + 工作区引用），而不是归档。原生 Modal 确认、危险色按钮，删完列表即时消失。",
+  "license": "MIT",
+  "author": {
+    "name": "Dizrt1001"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tongqing1130-png/dsh-session-delete.git"
+  },
+  "homepage": "https://github.com/tongqing1130-png/dsh-session-delete#readme",
+  "bugs": {
+    "url": "https://github.com/tongqing1130-png/dsh-session-delete/issues"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "icon.svg",
+    "README.md",
+    "INSTALL.md"
+  ],
+  "icon": "./icon.svg",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "session",
+    "delete",
+    "sidebar"
+  ],
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dsh": {
+    "manifestVersion": 1,
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-connection",
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-modules"
+      ]
+    }
+  }
+}
