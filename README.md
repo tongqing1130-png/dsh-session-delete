@@ -60,15 +60,30 @@ git clone https://github.com/tongqing1130-png/dsh-session-delete.git
 | 6 | 工作区清理：`registry.unarchiveSession()` / `unpinSession()` + 逐实体 `ws.detachSession()` |
 | 7 | 纯内存、尚未落盘的会话直接按 `memoryOnly: true` 算删成功 |
 
-会话 id 只接受 `^[A-Za-z0-9._:@-]{3,200}$`，HTTP 路由只接受 localhost `Host`，不对外暴露。
+会话 id 只接受 `^[A-Za-z0-9._:@-]{3,200}$`。
+
+### 访问校验（v1.1.1 起）
+
+路由挂在 DSH 的 web 端口上。DSH 自己的 web 服务器已经会拦未授权的请求（实测外部 `curl` 直接拿到 401/403），但那属于宿主的行为，插件不该把安全押在别人的实现上 —— 所以插件自己再加三道闸：
+
+| 闸 | 规则 | 挡住的场景 |
+|---|---|---|
+| 令牌 | 除 `/api/ping`、`/api/token` 外，请求必须带 `x-session-delete-token`，值等于本进程随机生成的 24 字节令牌（`timingSafeEqual` 比较） | 别的网页盲发 POST —— 它读不到令牌 |
+| 来源 | 有 `Sec-Fetch-Site: cross-site` 或 `same-site` 一律 403；有 `Origin` 时必须匹配 `http(s)://(127.0.0.1\|localhost\|[::1])(:port)?` | 跨站表单/`fetch` 打进来的请求 |
+| 类型 | `/api/delete` 必须 `content-type: application/json` | 不需要预检的「简单请求」（form、`text/plain`） |
+
+令牌为什么拿得到、却偷不走：插件**不返回任何 CORS 头**。同源的 DSH 页面可以 `fetch` 到 `/api/token` 并读到值；别的源的网页能发出请求，但浏览器不让它读响应体，于是拿不到令牌，后续所有调用都被 403。
+
+客户端侧（`lib/client.js`）第一次删除前会取一次令牌并缓存；宿重重载换了令牌时收到 403 会自动重取一次再试，用户无感。
 
 ## HTTP 接口
 
-| 方法 | 路径 | 说明 |
-|---|---|---|
-| GET | `/session-delete/api/ping` | 存活探针，返回 `build` 标记 |
-| GET | `/session-delete/api/list` | 会话清单（id / 标题 / 磁盘路径 / onDisk） |
-| POST | `/session-delete/api/delete` | `{ sessionId }` → `{ ok, removed, diskRemoved, memoryOnly?, cancelled, detached }` |
+| 方法 | 路径 | 鉴权 | 说明 |
+|---|---|---|---|
+| GET | `/session-delete/api/ping` | 免 | 存活探针，返回 `build` 标记与 `auth: 'token'` |
+| GET | `/session-delete/api/token` | 同源 | 发令牌（`{ token }`），仅供同源客户端读取 |
+| GET | `/session-delete/api/list` | 令牌 | 会话清单（id / 标题 / 磁盘路径 / onDisk） |
+| POST | `/session-delete/api/delete` | 令牌 + JSON | `{ sessionId }` → `{ ok, removed, diskRemoved, memoryOnly?, cancelled, detached }` |
 
 浏览器控制台兜底：`__dshListSessions()` / `__dshDeleteSession(id)`。
 
