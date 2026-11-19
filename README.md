@@ -113,3 +113,11 @@ dsh-session-delete/
 ## License
 
 MIT © 2026 Dizrt1001
+
+## 从 tarball 安装（插件市场 / 手动）
+
+```
+https://github.com/tongqing1130-png/dsh-session-delete/releases/download/v1.1.2/dsh-session-delete-1.1.2.tgz
+```
+
+包里是 `npm pack` 布局（所有文件在 `package/` 下），并且地址带版本号 —— `latest/download` 在换资产后会指向别的文件，条目里一律用带 tag 的地址。

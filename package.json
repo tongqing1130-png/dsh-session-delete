@@ -1,6 +1,6 @@
 {
   "name": "dsh-session-delete",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "给 DSH 会话列表加一个「删除对话」菜单项：真正删掉会话（磁盘目录 + 内存条目 + 工作区引用），而不是归档。原生 Modal 确认、危险色按钮，删完列表即时消失。",
   "license": "MIT",
   "author": {
